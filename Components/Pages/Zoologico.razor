@@ -1,0 +1,191 @@
+﻿@page "/zoologico"
+
+@using ZoologicoLaboratorio15.Models
+@using ZoologicoLaboratorio15.Services
+
+@inject AnimalService animalService
+
+<h1>Control de Zoológico</h1>
+
+<hr />
+
+<h3>Tipo de Animal</h3>
+
+<select @bind="tipoAnimal">
+    <option value="Ave">Ave</option>
+    <option value="Serpiente">Serpiente</option>
+</select>
+
+<hr />
+
+<h3>Datos Generales</h3>
+
+<div class="mb-2">
+    <label>Nombre:</label>
+    <input class="form-control" @bind="nombre" />
+</div>
+
+<div class="mb-2">
+    <label>Especie:</label>
+    <input class="form-control" @bind="especie" />
+</div>
+
+<div class="mb-2">
+    <label>Tipo de Alimentación:</label>
+    <input class="form-control" @bind="tipoAlimentacion" />
+</div>
+
+<div class="mb-2">
+    <label>Tiempo Máximo de Vida:</label>
+    <input type="number" class="form-control" @bind="tiempoVida" />
+</div>
+
+@if (tipoAnimal == "Ave")
+{
+    <h3>Datos del Ave</h3>
+
+    <div class="mb-2">
+        <label>¿Vuela?</label>
+        <input type="checkbox" @bind="vuela" />
+    </div>
+
+    <div class="mb-2">
+        <label>Período de Incubación:</label>
+        <input type="number" class="form-control" @bind="periodoIncubacion" />
+    </div>
+}
+
+@if (tipoAnimal == "Serpiente")
+{
+    <h3>Datos de la Serpiente</h3>
+
+    <div class="mb-2">
+        <label>¿Es venenosa?</label>
+        <input type="checkbox" @bind="venenosa" />
+    </div>
+
+    <div class="mb-2">
+        <label>Longitud Máxima:</label>
+        <input type="number" class="form-control" @bind="longitudMaxima" />
+    </div>
+}
+
+<button class="btn btn-primary mt-3" @onclick="GuardarAnimal">
+    Guardar Animal
+</button>
+
+<hr />
+
+<h2>Listado de Animales</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Especie</th>
+            <th>Alimentación</th>
+            <th>Vida</th>
+            <th>Tipo</th>
+            <th>Extra</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var animal in animalService.ListaAnimales)
+        {
+            <tr>
+                <td>@animal.NombrePropio</td>
+                <td>@animal.Especie</td>
+                <td>@animal.TipoAlimentacion</td>
+                <td>@animal.TiempoMaximoVida</td>
+
+                @if (animal is Ave ave)
+                {
+                    <td>Ave</td>
+
+                    <td>
+                        Vuela: @(ave.Vuela ? "Sí" : "No")
+                        <br />
+                        Incubación: @ave.PeriodoIncubacion días
+                    </td>
+                }
+                else if (animal is Serpiente serpiente)
+                {
+                    <td>Serpiente</td>
+
+                    <td>
+                        Venenosa: @(serpiente.Venenosa ? "Sí" : "No")
+                        <br />
+                        Longitud: @serpiente.LongitudMaxima m
+                    </td>
+                }
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+@code {
+
+    string tipoAnimal = "Ave";
+
+    string nombre;
+    string especie;
+    string tipoAlimentacion;
+
+    int tiempoVida;
+
+    bool vuela;
+    int periodoIncubacion;
+
+    bool venenosa;
+    double longitudMaxima;
+
+    void GuardarAnimal()
+    {
+        if (tipoAnimal == "Ave")
+        {
+            Ave ave = new Ave();
+
+            ave.NombrePropio = nombre;
+            ave.Especie = especie;
+            ave.TipoAlimentacion = tipoAlimentacion;
+            ave.TiempoMaximoVida = tiempoVida;
+            ave.Vuela = vuela;
+            ave.PeriodoIncubacion = periodoIncubacion;
+
+            animalService.AgregarAnimal(ave);
+        }
+        else
+        {
+            Serpiente serpiente = new Serpiente();
+
+            serpiente.NombrePropio = nombre;
+            serpiente.Especie = especie;
+            serpiente.TipoAlimentacion = tipoAlimentacion;
+            serpiente.TiempoMaximoVida = tiempoVida;
+            serpiente.Venenosa = venenosa;
+            serpiente.LongitudMaxima = longitudMaxima;
+
+            animalService.AgregarAnimal(serpiente);
+        }
+
+        Limpiar();
+    }
+
+    void Limpiar()
+    {
+        nombre = "";
+        especie = "";
+        tipoAlimentacion = "";
+
+        tiempoVida = 0;
+
+        vuela = false;
+        periodoIncubacion = 0;
+
+        venenosa = false;
+        longitudMaxima = 0;
+    }
+}
